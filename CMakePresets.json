@@ -1,0 +1,58 @@
+{
+    "version": 8,
+    "configurePresets": [
+      {
+        "name": "linuxdebug",
+        "displayName": "LinuxDebug",
+        "generator": "Ninja",
+        "binaryDir": "${sourceDir}/build",
+        "cacheVariables": {
+          "CMAKE_BUILD_TYPE": "Debug",
+          "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+          "CMAKE_CXX_FLAGS_INIT": "-g -Wall -Wextra -Wpedantic -Wno-unused-variable -Wno-unused-parameter",
+          "CMAKE_CUDA_SEPARABLE_COMPILATION": "ON",
+          "CMAKE_CUDA_ARCHITECTURES": "60",
+          "CMAKE_CUDA_FLAGS_INIT": "-Xcompiler -fopenmp"
+        }
+      },
+      {
+        "name": "linuxrelease",
+        "displayName": "LinuxRelease",
+        "generator": "Ninja",
+        "binaryDir": "${sourceDir}/build",
+        "cacheVariables": {
+          "CMAKE_BUILD_TYPE": "Release",
+          "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+          "CMAKE_CUDA_SEPARABLE_COMPILATION": "ON",
+          "CMAKE_CUDA_ARCHITECTURES": "60",
+          "CMAKE_CUDA_FLAGS_INIT": "-Xcompiler -fopenmp"
+        }
+      },
+      {
+        "name": "windebug",
+        "displayName": "WindowsDebug",
+        "generator": "Ninja",
+        "binaryDir": "${sourceDir}/build",
+        "cacheVariables": {
+          "CMAKE_BUILD_TYPE": "Debug",
+          "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+          "CMAKE_CXX_FLAGS_INIT": "-g -Wall /openmp:llvm",
+          "CMAKE_CUDA_SEPARABLE_COMPILATION": "ON",
+          "CMAKE_CUDA_FLAGS_INIT": "-Xcompiler=/openmp:llvm"
+        }
+      },
+      {
+        "name": "winrelease",
+        "displayName": "WindowsRelease",
+        "generator": "Ninja",
+        "binaryDir": "${sourceDir}/build",
+        "cacheVariables": {
+          "CMAKE_BUILD_TYPE": "Release",
+          "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+          "CMAKE_CXX_FLAGS_INIT": "-O3 /openmp:llvm",
+          "CMAKE_CUDA_SEPARABLE_COMPILATION": "ON",
+          "CMAKE_CUDA_FLAGS_INIT": "-Xcompiler=/openmp:llvm"
+        }
+      }
+    ]
+  }
