@@ -97,3 +97,11 @@ The Heating Problem is intentionally excluded from `generate_all_problems()` so
 that ordinary ZDT/DTLZ benchmark runs do not unexpectedly execute the much more
 expensive physics simulation. Invalid dimensions are rejected instead of being
 silently rounded.
+
+## Authors and attribution
+
+The original PMOO library was created by **Kamil Banach** and **Sebastian Pietras**.
+
+This reproducibility version extends the original implementation with the heat-conduction experiment, MOEA/D thread-safety corrections, and reproducibility support.
+
+Original project: https://github.com/furkacz/pmoo
