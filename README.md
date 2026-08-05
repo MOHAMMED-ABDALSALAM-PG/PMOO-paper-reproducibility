@@ -104,4 +104,8 @@ The original PMOO library was created by **Kamil Banach** and **Sebastian Pietra
 
 This reproducibility version extends the original implementation with the heat-conduction experiment, MOEA/D thread-safety corrections, and reproducibility support.
 
+**Mohammed Abdalsalam:** Extended PMOO by adding the Heat Conduction Problem, implementing MOEA/D thread-safety fixes, and improving reproducibility support.
+
+**Professor Joanna Szłapczyńska:** Conceptualization, Methodology, Resources, Supervision.
+
 Original project: https://github.com/furkacz/pmoo
