@@ -262,6 +262,8 @@ void moead_t_hs_gpu_evolve(struct moead_t_hs_gpu<POP_SIZE, D_DIM, F_DIM> *moead)
         POP_SIZE * MOEAD_NEIGHBORHOOD_SIZE * sizeof(unsigned), 
         cudaMemcpyDeviceToHost)
     );
+	CUDA_CALL(cudaMemcpy(moead->weight_vectors, moead->device_weight_vectors,
+        POP_SIZE * F_DIM * sizeof(double), cudaMemcpyDeviceToHost));
 
     for (unsigned gen = 0; gen < moead->gen; ++gen) {
         // Loop through each subproblem i

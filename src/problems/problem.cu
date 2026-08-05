@@ -3,6 +3,7 @@
 #include "problems/suites/dtlz.cuh"
 #include "problems/suites/wfg.cuh"
 #include "problems/suites/custom.cuh"
+#include "problems/suites/heat_conduction.cuh"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,6 +19,8 @@ Problem* generate_problem(TestSuiteEnum suite, unsigned problem_id, unsigned d_d
             return generate_wfg_problem(problem_id, d_dim, f_dim);
         case CUSTOM:
             return generate_custom_problem(problem_id, d_dim, f_dim);
+        case HEAT_CONDUCTION:
+            return generate_heat_conduction_problem(problem_id, d_dim, f_dim);
         default:
             return NULL;
     }
@@ -39,6 +42,8 @@ Problem** generate_all_problems(unsigned d_dim, unsigned f_dim) {
 }
 
 void free_problem(Problem *problem) {
+    if (problem == NULL) return;
+    if (problem->suite == HEAT_CONDUCTION) heat_conduction_cleanup();
     free(problem->upper_bounds);
     free(problem->lower_bounds);
     if (problem->ref_point != NULL)

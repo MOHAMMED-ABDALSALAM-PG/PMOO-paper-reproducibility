@@ -155,6 +155,7 @@ struct moead_t_d_hybrid {
     std::mt19937 random[POP_SIZE];
     unsigned num_threads;
     omp_lock_t lock[POP_SIZE];
+    omp_lock_t ideal_lock[F_DIM];
 };
 
 
@@ -167,6 +168,9 @@ void moead_t_d_hybrid_initialize(struct moead_t_d_hybrid<POP_SIZE, D_DIM, F_DIM>
     for (unsigned i = 0; i < POP_SIZE; ++i) {
         moead->random[i].seed(std::random_device{}());
         omp_init_lock(&moead->lock[i]);
+    }
+    for (unsigned j = 0; j < F_DIM; ++j) {
+        omp_init_lock(&moead->ideal_lock[j]);
     }
 
 
@@ -243,6 +247,8 @@ void moead_t_d_hybrid_evolve(struct moead_t_d_hybrid<POP_SIZE, D_DIM, F_DIM> *mo
         POP_SIZE * MOEAD_NEIGHBORHOOD_SIZE * sizeof(unsigned), 
         cudaMemcpyDeviceToHost)
     );
+	CUDA_CALL(cudaMemcpy(moead->weight_vectors, moead->device_weight_vectors,
+        POP_SIZE * F_DIM * sizeof(double), cudaMemcpyDeviceToHost));
 
 
     for (unsigned gen = 0; gen < moead->gen; ++gen) {
@@ -274,11 +280,11 @@ void moead_t_d_hybrid_evolve(struct moead_t_d_hybrid<POP_SIZE, D_DIM, F_DIM> *mo
             
             // Update ideal point if offspring is better
             for (unsigned j = 0; j < F_DIM; ++j) {
-                
+                omp_set_lock(&moead->ideal_lock[j]);
                 if (offspring_fitness[j] < moead->ideal_point[j]) {
-                    #pragma omp atomic write
                     moead->ideal_point[j] = offspring_fitness[j];
                 }
+                omp_unset_lock(&moead->ideal_lock[j]);
             }
 
             // Update neighboring solutions
@@ -289,9 +295,12 @@ void moead_t_d_hybrid_evolve(struct moead_t_d_hybrid<POP_SIZE, D_DIM, F_DIM> *mo
                 double f_offspring = moead_t_d_hybrid_calc_tchebycheff(moead, j, offspring_fitness);
                 if (f_offspring < f_current - TOLERANCE_EPSILON) {
                     omp_set_lock(&moead->lock[j]);
-                    // Replace solution j with the offspring
-                    memcpy(moead->decision_variables[j], offspring_vars, D_DIM * sizeof(double));
-                    memcpy(moead->fitness_values[j], offspring_fitness, F_DIM * sizeof(double));
+                    double f_current_locked = moead_t_d_hybrid_calc_tchebycheff(
+                        moead, j, moead->fitness_values[j]);
+                    if (f_offspring < f_current_locked - TOLERANCE_EPSILON) {
+                        memcpy(moead->decision_variables[j], offspring_vars, D_DIM * sizeof(double));
+                        memcpy(moead->fitness_values[j], offspring_fitness, F_DIM * sizeof(double));
+                    }
                     omp_unset_lock(&moead->lock[j]);
                 }
             }
@@ -512,6 +521,7 @@ inline void pmoo_moead_t_d_hybrid_cleanup(void *self, void *gpu_self) {
     CUDA_CALL(cudaFree(moead->deviceStates));
     
     for (unsigned i = 0; i < POP_SIZE; ++i) omp_destroy_lock(&moead->lock[i]);
+    for (unsigned j = 0; j < F_DIM; ++j) omp_destroy_lock(&moead->ideal_lock[j]);
 }
 
 template <unsigned POP_SIZE, unsigned D_DIM, unsigned F_DIM>

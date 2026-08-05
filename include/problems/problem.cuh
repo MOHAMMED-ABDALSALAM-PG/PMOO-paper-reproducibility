@@ -10,12 +10,16 @@ enum TestSuiteEnum {
     DTLZ,
     WFG,
     CUSTOM,
+    HEAT_CONDUCTION,
     TEST_SUITES_COUNT
 };
 
-const TestSuiteEnum TEST_SUITES[TEST_SUITES_COUNT] = { ZDT, DTLZ, WFG, CUSTOM };
-const char* const TEST_SUITES_NAMES[TEST_SUITES_COUNT] = { "ZDT", "DTLZ", "WFG", "CUSTOM" };
-const unsigned TEST_SUITES_PROBLEM_COUNT[TEST_SUITES_COUNT] = { 6u, 7u, 0u, 0u }; // { 6u, 7u, 9u, 1u }
+const TestSuiteEnum TEST_SUITES[TEST_SUITES_COUNT] = { ZDT, DTLZ, WFG, CUSTOM, HEAT_CONDUCTION };
+const char* const TEST_SUITES_NAMES[TEST_SUITES_COUNT] = { "ZDT", "DTLZ", "WFG", "CUSTOM", "HEAT_CONDUCTION" };
+// Heat conduction is available through generate_problem(HEAT_CONDUCTION, ...)
+// but is excluded from the default analytical-suite sweep because it requires
+// the dedicated paper configuration d_dim=21 and f_dim=3.
+const unsigned TEST_SUITES_PROBLEM_COUNT[TEST_SUITES_COUNT] = { 6u, 7u, 0u, 0u, 0u }; // { 6u, 7u, 9u, 1u, 1u }
 
 typedef struct problem {
     TestSuiteEnum suite;            // test suite id

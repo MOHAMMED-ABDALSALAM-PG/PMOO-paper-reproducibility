@@ -56,3 +56,44 @@ CMake presets was verified for version 8 but should work on older versions, the 
 - run the VS Code or Cmake through the **`x64 Native Tools Command Prompt for VS 2022`** or different versions provided by the Visual Studio
 
 > **Note:** This could be skipped if a proper environment is set up (We were not able to create it ourselves)
+
+## MOEA/D thread-safety correction
+
+The OpenMP CPU and HYBRID implementations of MOEA/D use two levels of
+synchronization during the asynchronous subproblem update:
+
+- one lock per objective protects comparison and update of the shared ideal
+  point;
+- one lock per population member protects neighbour replacement, with the
+  current Tchebycheff value recomputed after the lock is acquired.
+
+The locked recheck prevents a decision made from a stale neighbour value from
+overwriting an update completed by another OpenMP thread.
+
+## Heat Conduction Problem
+
+The physics-based Heat Conduction Problem is implemented in:
+
+- `include/problems/suites/heat_conduction.cuh`
+- `src/problems/suites/heat_conduction.cu`
+
+The paper configuration is:
+
+```text
+problem_id = 1
+d_dim      = 21  (seven sources, each represented by x, y, intensity)
+f_dim      = 3
+grid       = 75 x 75
+time steps = 4000
+```
+
+Create it explicitly with:
+
+```cpp
+Problem *problem = generate_problem(HEAT_CONDUCTION, 1u, 21u, 3u);
+```
+
+The Heating Problem is intentionally excluded from `generate_all_problems()` so
+that ordinary ZDT/DTLZ benchmark runs do not unexpectedly execute the much more
+expensive physics simulation. Invalid dimensions are rejected instead of being
+silently rounded.
